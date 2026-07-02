@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/thought_row_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
+
+    <!-- Thought Title -->
+    <TextView
+        android:id="@+id/thought_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:text="念頭內容"
+        android:textColor="#E2E8F0"
+        android:textSize="13sp" />
+
+    <!-- Clickable Checkbox Button -->
+    <TextView
+        android:id="@+id/thought_done_btn"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:gravity="center"
+        android:text="○"
+        android:textColor="#64748B"
+        android:textStyle="bold"
+        android:textSize="18sp" />
+</LinearLayout>

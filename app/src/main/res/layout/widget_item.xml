@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_item_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/widget_item_background"
+    android:gravity="top"
+    android:padding="12dp">
+
+    <!-- Status Indicator Icon (🟢, 🔸, 💤, 🔒, ⚠️) -->
+    <TextView
+        android:id="@+id/item_indicator"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:gravity="center"
+        android:textSize="14sp"
+        android:layout_marginTop="2dp"
+        android:text="🟢" />
+
+    <!-- Details Column -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
+
+        <!-- Time & Slot Name -->
+        <TextView
+            android:id="@+id/item_time_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="07:10–08:00 通勤乾等"
+            android:textColor="#E2E8F0"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <!-- Thoughts list container -->
+        <LinearLayout
+            android:id="@+id/item_thoughts_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="4dp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- Warning / Custom Status -->
+    <TextView
+        android:id="@+id/item_warning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="別碰 / 要睡覺"
+        android:textColor="#B39DDB"
+        android:textSize="11sp"
+        android:visibility="gone" />
+</LinearLayout>

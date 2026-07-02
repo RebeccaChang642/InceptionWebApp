@@ -1,0 +1,6 @@
+{
+  "name": "落地",
+  "description": "極簡個人時間管理與睡眠保護 App",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
