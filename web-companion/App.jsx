@@ -17,7 +17,8 @@ import {
   AlertTriangle,
   Info,
   Sliders,
-  Sparkles
+  Sparkles,
+  Download
 } from 'lucide-react';
 
 // ==========================================
@@ -85,6 +86,7 @@ export default function App() {
   const [accessToken, setAccessToken] = useState(() => localStorage.getItem('luodi_access_token') || '');
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState('');
+  const [syncConflict, setSyncConflict] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
   // --- Core Application State ---
@@ -205,6 +207,7 @@ export default function App() {
   const handleSignOut = () => {
     setAccessToken('');
     setGoogleUser(null);
+    setSyncConflict(false);
     setSyncMessage('已登出 Google 帳號');
   };
 
@@ -216,7 +219,7 @@ export default function App() {
 
     try {
       // 1. Find the sync file in Google Drive AppData folder
-      const listUrl = 'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27luodi_sync_data.json%27&fields=files(id,name)';
+      const listUrl = 'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27luodi_sync_backup.json%27&orderBy=modifiedTime%20desc&fields=files(id,name)';
       const listRes = await fetch(listUrl, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -253,7 +256,7 @@ export default function App() {
         };
 
         const metadata = {
-          name: 'luodi_sync_data.json',
+          name: 'luodi_sync_backup.json',
           parents: ['appDataFolder']
         };
 
@@ -283,15 +286,47 @@ export default function App() {
         const cloudThoughts = cloudData.thoughts || [];
         const cloudConfigs = cloudData.dayConfigs || [];
 
+        // Detect if there's any mismatch/conflict
+        let isMismatched = false;
+        if (cloudThoughts.length !== currentThoughts.length) {
+          isMismatched = true;
+        } else {
+          const localMap = new Map(currentThoughts.map(t => [t.createdAt || t.id, t]));
+          for (const ct of cloudThoughts) {
+            const key = ct.createdAt || ct.id;
+            const local = localMap.get(key);
+            if (
+              !local || 
+              local.title !== ct.title || 
+              local.status !== ct.status || 
+              local.placedDayIndex !== ct.placedDayIndex || 
+              local.placedSlotId !== ct.placedSlotId || 
+              local.type !== ct.type
+            ) {
+              isMismatched = true;
+              break;
+            }
+          }
+        }
+        setSyncConflict(isMismatched);
+
         // Thoughts Merge
         const mergedThoughtsMap = new Map();
         // Add all local
-        currentThoughts.forEach(t => mergedThoughtsMap.set(t.id, t));
+        currentThoughts.forEach(t => {
+          const key = t.createdAt || t.id;
+          mergedThoughtsMap.set(key, t);
+        });
         // Merge cloud using updatedAt
         cloudThoughts.forEach(ct => {
-          const local = mergedThoughtsMap.get(ct.id);
+          const key = ct.createdAt || ct.id;
+          const local = mergedThoughtsMap.get(key);
           if (!local || ct.updatedAt > (local.updatedAt || 0)) {
-            mergedThoughtsMap.set(ct.id, ct);
+            const mergedItem = { ...ct };
+            if (!mergedItem.id) {
+              mergedItem.id = ct.createdAt || Math.floor(Math.random() * 10000000);
+            }
+            mergedThoughtsMap.set(key, mergedItem);
           }
         });
         const mergedThoughts = Array.from(mergedThoughtsMap.values());
@@ -301,8 +336,11 @@ export default function App() {
         currentDayConfigs.forEach(c => mergedConfigsMap.set(c.dayIndex, c));
         cloudConfigs.forEach(cc => {
           const local = mergedConfigsMap.get(cc.dayIndex);
-          if (!local || cc.updatedAt > (local.updatedAt || 0)) {
-            mergedConfigsMap.set(cc.dayIndex, cc);
+          if (!local || !cc.updatedAt || cc.updatedAt > (local.updatedAt || 0)) {
+            mergedConfigsMap.set(cc.dayIndex, {
+              ...cc,
+              updatedAt: cc.updatedAt || Date.now()
+            });
           }
         });
         const mergedConfigs = Array.from(mergedConfigsMap.values()).sort((a,b) => a.dayIndex - b.dayIndex);
@@ -330,7 +368,11 @@ export default function App() {
         });
 
         if (uploadRes.ok) {
-          setSyncMessage('雲端雙向同步成功 ✨');
+          if (isMismatched) {
+            setSyncMessage('偵測到版本差異，已自動雙向合併 ✨');
+          } else {
+            setSyncMessage('雲端雙向同步成功 ✨');
+          }
         } else {
           throw new Error('無法更新雲端檔案');
         }
@@ -345,11 +387,81 @@ export default function App() {
     }
   };
 
+  // Force overwrite local Web Companion state with pristine cloud data from Google Drive
+  const forceImportFromGoogleDrive = async (token) => {
+    if (!token) return;
+    setIsSyncing(true);
+    setSyncMessage('正在從雲端強制匯入資料...');
+
+    try {
+      // 1. Find the sync file in Google Drive AppData folder
+      const listUrl = 'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27luodi_sync_backup.json%27&orderBy=modifiedTime%20desc&fields=files(id,name)';
+      const listRes = await fetch(listUrl, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!listRes.ok) throw new Error('無法查詢雲端檔案');
+      const listData = await listRes.json();
+      const files = listData.files || [];
+
+      if (files.length === 0) {
+        setSyncMessage('雲端沒有備份資料可供匯入 ⚠️');
+        setIsSyncing(false);
+        return;
+      }
+
+      const fileId = files[0].id;
+      // 2. Download cloud file
+      const downRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!downRes.ok) throw new Error('下載雲端檔案失敗');
+      const cloudData = await downRes.json();
+
+      if (!cloudData) {
+        throw new Error('雲端檔案內容為空');
+      }
+
+      const cloudThoughts = cloudData.thoughts || [];
+      const cloudConfigs = cloudData.dayConfigs || [];
+
+      // Force format / check items
+      const formattedThoughts = cloudThoughts.map(ct => {
+        const mergedItem = { ...ct };
+        if (!mergedItem.id) {
+          mergedItem.id = ct.createdAt || Math.floor(Math.random() * 10000000);
+        }
+        return mergedItem;
+      });
+
+      const formattedConfigs = cloudConfigs.map(cc => ({
+        ...cc,
+        updatedAt: cc.updatedAt || Date.now()
+      })).sort((a,b) => a.dayIndex - b.dayIndex);
+
+      // Force overwrite local state
+      setThoughts(formattedThoughts);
+      setDayConfigs(formattedConfigs);
+
+      // Reset conflict status since we are now perfectly aligned with cloud
+      setSyncConflict(false);
+
+      setSyncMessage('已強制從裝置/雲端備份覆蓋匯入！ ✨');
+    } catch (err) {
+      console.error(err);
+      setSyncMessage(`強制匯入失敗: ${err.message} ❌`);
+    } finally {
+      setIsSyncing(false);
+      // Clear message after 5 seconds
+      setTimeout(() => setSyncMessage(''), 5000);
+    }
+  };
+
   // Helper trigger to save state to cloud after a local write
   const triggerPushToCloud = async (updatedThoughts = thoughts, updatedConfigs = dayConfigs) => {
     if (!accessToken) return;
     try {
-      const listUrl = 'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27luodi_sync_data.json%27&fields=files(id)';
+      const listUrl = 'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27luodi_sync_backup.json%27&orderBy=modifiedTime%20desc&fields=files(id)';
       const listRes = await fetch(listUrl, {
         headers: { Authorization: `Bearer ${accessToken}` }
       });
@@ -636,29 +748,49 @@ export default function App() {
           )}
 
           {googleUser ? (
-            <div className="flex items-center gap-3 bg-cosmic-800/90 border border-cosmic-700 px-3.5 py-1.5 rounded-full">
-              {googleUser.picture ? (
-                <img src={googleUser.picture} alt="Avatar" className="w-5 h-5 rounded-full" />
-              ) : (
-                <div className="w-5 h-5 rounded-full bg-cosmic-cyan flex items-center justify-center text-[10px] text-cosmic-900 font-bold">
-                  G
-                </div>
-              )}
-              <span className="text-xs font-semibold text-slate-200">{googleUser.name}</span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 bg-cosmic-800/90 border border-cosmic-700 px-3.5 py-1.5 rounded-full">
+                {googleUser.picture ? (
+                  <img src={googleUser.picture} alt="Avatar" className="w-5 h-5 rounded-full" />
+                ) : (
+                  <div className="w-5 h-5 rounded-full bg-cosmic-cyan flex items-center justify-center text-[10px] text-cosmic-900 font-bold">
+                    G
+                  </div>
+                )}
+                <span className="text-xs font-semibold text-slate-200">{googleUser.name}</span>
+                <button 
+                  onClick={() => syncWithGoogleDrive(accessToken)} 
+                  disabled={isSyncing}
+                  className="p-1 text-slate-400 hover:text-cosmic-cyan rounded transition-all"
+                  title="立即手動雙向同步"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-cosmic-cyan' : ''}`} />
+                </button>
+                <button 
+                  onClick={handleSignOut}
+                  className="p-1 text-slate-400 hover:text-cosmic-rose rounded transition-all"
+                  title="登出"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
               <button 
-                onClick={() => syncWithGoogleDrive(accessToken)} 
+                onClick={() => {
+                  if (window.confirm("確定要強制使用「手機端/雲端」的備份資料覆蓋目前網頁端的儲存數據嗎？\n\n⚠️ 注意：這將會完全清除此網頁端現有的所有念頭與日型配置！")) {
+                    forceImportFromGoogleDrive(accessToken);
+                  }
+                }}
                 disabled={isSyncing}
-                className="p-1 text-slate-400 hover:text-cosmic-cyan rounded transition-all"
-                title="立即手動雙向同步"
+                className={`flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full border transition-all ${
+                  syncConflict 
+                    ? 'bg-amber-500/20 border-amber-500 text-amber-300 hover:bg-amber-500/30 animate-pulse' 
+                    : 'bg-cosmic-800/80 border-cosmic-700 text-slate-300 hover:bg-cosmic-700 hover:text-white'
+                }`}
+                title="當手機與網頁資料有衝突時，強制用手機資料覆蓋此網頁"
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-cosmic-cyan' : ''}`} />
-              </button>
-              <button 
-                onClick={handleSignOut}
-                className="p-1 text-slate-400 hover:text-cosmic-rose rounded transition-all"
-                title="登出"
-              >
-                <LogOut className="w-3.5 h-3.5" />
+                <Download className="w-3.5 h-3.5" />
+                <span>從裝置強制匯入</span>
               </button>
             </div>
           ) : (
