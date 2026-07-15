@@ -1073,7 +1073,7 @@ export default function App() {
               return (
                 <div 
                   key={config.dayIndex} 
-                  className={`bg-cosmic-700/25 border rounded-2xl p-4.5 space-y-3.5 hover:border-cosmic-600/60 transition-colors ${
+                  className={`bg-cosmic-700/25 border rounded-2xl p-6 space-y-4 hover:border-cosmic-600/60 transition-colors ${
                     isToday ? 'border-cosmic-cyan/40 bg-cosmic-cyan/[0.02]' : 'border-cosmic-700/45'
                   }`}
                 >
@@ -1302,7 +1302,7 @@ export default function App() {
           LIMIT WARNING NOTIFICATION MODAL
           ========================================== */}
       {warningMessage && (
-        <div className="fixed bottom-6 right-6 z-50 max-w-sm bg-cosmic-800 border border-cosmic-rose/40 rounded-2xl p-4.5 shadow-2xl flex items-start gap-3.5 animate-slide-in">
+        <div className="fixed bottom-6 right-6 z-50 max-w-sm bg-cosmic-800 border border-cosmic-rose/40 rounded-2xl p-5 shadow-2xl flex items-start gap-3.5 animate-slide-in">
           <AlertTriangle className="w-5 h-5 text-cosmic-rose flex-shrink-0 mt-0.5" />
           <div className="flex-1">
             <h4 className="text-sm font-bold text-cosmic-rose">落念警示！🧠</h4>
