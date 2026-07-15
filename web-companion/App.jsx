@@ -76,6 +76,51 @@ function getGapsForDayType(dayType, dayIndex) {
   }
 }
 
+// Get today's index: Monday is 0, Sunday is 6
+function getTodayIndex() {
+  const day = new Date().getDay(); // 0 (Sunday) to 6 (Saturday)
+  return day === 0 ? 6 : day - 1;
+}
+
+// Get the date string for a given dayIndex (0..6) and weekOffset (yyyy-MM-dd)
+function getFullDateStringForIndex(dayIndex, weekOffset = 0) {
+  const today = new Date();
+  const todayIndex = getTodayIndex();
+  const diffDays = (dayIndex - todayIndex) + (weekOffset * 7);
+  const target = new Date(today);
+  target.setDate(today.getDate() + diffDays);
+  
+  const yyyy = target.getFullYear();
+  const mm = String(target.getMonth() + 1).padStart(2, '0');
+  const dd = String(target.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+// Get short date M/d for display in column headers
+function getShortDateStringForIndex(dayIndex, weekOffset = 0) {
+  const today = new Date();
+  const todayIndex = getTodayIndex();
+  const diffDays = (dayIndex - todayIndex) + (weekOffset * 7);
+  const target = new Date(today);
+  target.setDate(today.getDate() + diffDays);
+  
+  return `${target.getMonth() + 1}/${target.getDate()}`;
+}
+
+// Get long date yyyy.MM.dd for active display
+function getDateStringForIndex(dayIndex, weekOffset = 0) {
+  const today = new Date();
+  const todayIndex = getTodayIndex();
+  const diffDays = (dayIndex - todayIndex) + (weekOffset * 7);
+  const target = new Date(today);
+  target.setDate(today.getDate() + diffDays);
+  
+  const yyyy = target.getFullYear();
+  const mm = String(target.getMonth() + 1).padStart(2, '0');
+  const dd = String(target.getDate()).padStart(2, '0');
+  return `${yyyy}.${mm}.${dd}`;
+}
+
 // ==========================================
 // CORE WEB COMPANION APP
 // ==========================================
@@ -88,6 +133,7 @@ export default function App() {
   const [syncMessage, setSyncMessage] = useState('');
   const [syncConflict, setSyncConflict] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [weekOffset, setWeekOffset] = useState(0);
 
   // --- Core Application State ---
   const [thoughts, setThoughts] = useState(() => {
@@ -301,7 +347,8 @@ export default function App() {
               local.status !== ct.status || 
               local.placedDayIndex !== ct.placedDayIndex || 
               local.placedSlotId !== ct.placedSlotId || 
-              local.type !== ct.type
+              local.type !== ct.type ||
+              local.placedDate !== ct.placedDate
             ) {
               isMismatched = true;
               break;
@@ -552,7 +599,7 @@ export default function App() {
           status: "PLACED",
           placedDayIndex: dayIndex,
           placedSlotId: slotId,
-          placedDate: new Date().toISOString().split('T')[0], // current local date
+          placedDate: getFullDateStringForIndex(dayIndex, weekOffset),
           updatedAt: Date.now()
         };
       }
@@ -696,7 +743,7 @@ export default function App() {
             {dayConfigs.map((config) => {
               const gaps = getGapsForDayType(config.dayType, config.dayIndex);
               return (
-                <optgroup key={config.dayIndex} label={config.dayName}>
+                <optgroup key={config.dayIndex} label={`${config.dayName} (${getShortDateStringForIndex(config.dayIndex, weekOffset)})`}>
                   {gaps.map(gap => {
                     if (gap.semantic === "GREY_LOCKED") return null;
                     return (
@@ -934,21 +981,66 @@ export default function App() {
             RIGHT PANEL: WEEKLY TIMELINE PLANNER
             ========================================== */}
         <section className="lg:col-span-8 bg-cosmic-800/90 border border-cosmic-700/80 rounded-2xl p-6 shadow-xl flex flex-col gap-6">
-          <div className="flex items-center justify-between border-b border-cosmic-700/50 pb-4">
-            <div>
-              <h2 className="text-base font-extrabold text-white flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-cosmic-cyan" />
-                每週時間配置表
-              </h2>
-              <p className="text-xs text-slate-400 mt-0.5">點擊各日標籤可調整「日型」與大腦負荷限額 ⚡</p>
+          <div className="flex items-center justify-between flex-wrap gap-4 border-b border-cosmic-700/50 pb-4">
+            <div className="flex items-start gap-4 flex-wrap">
+              <div>
+                <h2 className="text-base font-extrabold text-white flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-cosmic-cyan" />
+                  每週時間配置表
+                </h2>
+                <p className="text-xs text-slate-400 mt-0.5">點擊各日標籤可調整「日型」與大腦負荷限額 ⚡</p>
+              </div>
+
+              {/* Week navigation control */}
+              <div className="flex items-center gap-1.5 bg-cosmic-700/50 border border-cosmic-700/70 px-2.5 py-1 rounded-full shadow-inner">
+                <button 
+                  onClick={() => setWeekOffset(prev => prev - 1)}
+                  className="p-1 hover:text-cosmic-cyan text-slate-400 hover:bg-cosmic-600/30 rounded-full transition-all"
+                  title="上一週"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                
+                <span className="text-xs font-bold text-slate-200 min-w-[55px] text-center px-1">
+                  {weekOffset === 0 ? "本週" :
+                   weekOffset === 1 ? "下週" :
+                   weekOffset === -1 ? "上週" :
+                   weekOffset < 0 ? `前 ${-weekOffset} 週` : `後 ${weekOffset} 週`}
+                </span>
+
+                <button 
+                  onClick={() => setWeekOffset(prev => prev + 1)}
+                  className="p-1 hover:text-cosmic-cyan text-slate-400 hover:bg-cosmic-600/30 rounded-full transition-all"
+                  title="下一週"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+
+                {weekOffset !== 0 && (
+                  <button
+                    onClick={() => setWeekOffset(0)}
+                    className="text-[10px] font-extrabold bg-cosmic-cyan/15 hover:bg-cosmic-cyan/25 text-cosmic-cyan border border-cosmic-cyan/20 px-2 py-0.5 rounded-md transition-all ml-1.5"
+                  >
+                    返回本週
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Completion rate visual banner */}
             <div className="flex items-center gap-2.5">
-              <span className="text-xs font-bold text-slate-300">本週完成率</span>
+              <span className="text-xs font-bold text-slate-300">
+                {weekOffset === 0 ? "本週" :
+                 weekOffset === 1 ? "下週" :
+                 weekOffset === -1 ? "上週" :
+                 weekOffset < 0 ? `前 ${-weekOffset} 週` : `後 ${weekOffset} 週`}完成率
+              </span>
               <div className="w-24 bg-cosmic-700 h-2 rounded-full overflow-hidden">
                 {(() => {
-                  const weekThoughts = thoughts.filter(t => t.placedDayIndex !== null);
+                  const weekThoughts = thoughts.filter(t => {
+                    const targetDate = getFullDateStringForIndex(t.placedDayIndex, weekOffset);
+                    return t.placedDayIndex !== null && (t.placedDate === targetDate || (!t.placedDate && weekOffset === 0));
+                  });
                   const completed = weekThoughts.filter(t => t.status === "COMPLETED").length;
                   const pct = weekThoughts.length > 0 ? Math.round((completed / weekThoughts.length) * 100) : 0;
                   return (
@@ -966,22 +1058,39 @@ export default function App() {
           <div className="space-y-6">
             {dayConfigs.map((config) => {
               const dayTypeInfo = DAY_TYPES[config.dayType || "NON_SPORT"];
-              const dayThoughts = thoughts.filter(t => t.placedDayIndex === config.dayIndex);
+              const targetDate = getFullDateStringForIndex(config.dayIndex, weekOffset);
+              const dayThoughts = thoughts.filter(t => 
+                t.placedDayIndex === config.dayIndex && 
+                (t.placedDate === targetDate || (!t.placedDate && weekOffset === 0))
+              );
               const gaps = getGapsForDayType(config.dayType || "NON_SPORT", config.dayIndex);
               
               // Count status
               const completedCount = dayThoughts.filter(t => t.status === "COMPLETED").length;
               const totalPlacedCount = dayThoughts.filter(t => t.status !== "PENDING").length;
+              const isToday = config.dayIndex === getTodayIndex() && weekOffset === 0;
 
               return (
                 <div 
                   key={config.dayIndex} 
-                  className="bg-cosmic-700/25 border border-cosmic-700/45 rounded-2xl p-4.5 space-y-3.5 hover:border-cosmic-600/60 transition-colors"
+                  className={`bg-cosmic-700/25 border rounded-2xl p-4.5 space-y-3.5 hover:border-cosmic-600/60 transition-colors ${
+                    isToday ? 'border-cosmic-cyan/40 bg-cosmic-cyan/[0.02]' : 'border-cosmic-700/45'
+                  }`}
                 >
                   {/* Day Info Subheader */}
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center gap-3">
-                      <h3 className="text-base font-bold text-slate-100">{config.dayName}</h3>
+                      <h3 className="text-base font-bold text-slate-100">
+                        {config.dayName}
+                        <span className="text-xs font-normal text-slate-400 ml-1.5">
+                          ({getShortDateStringForIndex(config.dayIndex, weekOffset)})
+                        </span>
+                      </h3>
+                      {isToday && (
+                        <span className="bg-cosmic-cyan/20 text-cosmic-cyan border border-cosmic-cyan/20 text-[10px] font-extrabold px-2 py-0.5 rounded-md shadow-sm">
+                          今天
+                        </span>
+                      )}
                       <button
                         onClick={() => setEditingDayIdx(config.dayIndex)}
                         className={`text-[10px] font-extrabold border px-2.5 py-1 rounded-full transition-all hover:bg-white/5 ${dayTypeInfo.color}`}
@@ -1156,7 +1265,7 @@ export default function App() {
         <div className="fixed inset-0 bg-cosmic-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-cosmic-800 border border-cosmic-700 rounded-2xl w-full max-w-sm p-6 shadow-2xl">
             <h3 className="text-base font-bold text-white mb-2">
-              調整 {DAY_NAMES[editingDayIdx]} 日型配置
+              調整 {DAY_NAMES[editingDayIdx]} ({getShortDateStringForIndex(editingDayIdx, weekOffset)}) 日型配置
             </h3>
             <p className="text-xs text-slate-400 mb-4">這會變更您在該日大腦可排入的時間縫隙配置：</p>
 
