@@ -713,11 +713,11 @@ export default function App() {
       <div key={thought.id} className="p-3 bg-cosmic-700/60 border border-cosmic-600/30 rounded-xl hover:border-cosmic-cyan/40 transition-all flex items-start justify-between gap-3 group">
         <div className="flex-1">
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${thought.type === 'FOCUS' ? 'bg-cosmic-rose/10 text-cosmic-rose' : 'bg-cosmic-cyan/10 text-cosmic-cyan'}`}>
+            <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${thought.type === 'FOCUS' ? 'bg-cosmic-rose/10 text-cosmic-rose' : 'bg-cosmic-cyan/10 text-cosmic-cyan'}`}>
               {thought.type === 'FOCUS' ? '專注 ⚡' : '深思 💭'}
             </span>
             {thought.isDeadline && thought.dueDate && (
-              <span className="bg-cosmic-gold/10 text-cosmic-gold border border-cosmic-gold/20 px-1.5 py-0.5 rounded text-[10px] flex items-center gap-0.5">
+              <span className="bg-cosmic-gold/10 text-cosmic-gold border border-cosmic-gold/20 px-1.5 py-0.5 rounded text-xs flex items-center gap-0.5">
                 <Calendar className="w-3 h-3" />
                 {thought.dueDate}
               </span>
@@ -736,7 +736,7 @@ export default function App() {
                 e.target.value = '';
               }
             }}
-            className="text-[11px] bg-cosmic-800 border border-cosmic-600 rounded px-1.5 py-1 text-slate-300 focus:outline-none focus:border-cosmic-cyan"
+            className="text-xs bg-cosmic-800 border border-cosmic-600 rounded px-1.5 py-1 text-slate-300 focus:outline-none focus:border-cosmic-cyan"
             defaultValue=""
           >
             <option value="" disabled>排程到...</option>
@@ -800,11 +800,11 @@ export default function App() {
                 {googleUser.picture ? (
                   <img src={googleUser.picture} alt="Avatar" className="w-5 h-5 rounded-full" />
                 ) : (
-                  <div className="w-5 h-5 rounded-full bg-cosmic-cyan flex items-center justify-center text-[10px] text-cosmic-900 font-bold">
+                  <div className="w-5 h-5 rounded-full bg-cosmic-cyan flex items-center justify-center text-xs text-cosmic-900 font-bold">
                     G
                   </div>
                 )}
-                <span className="text-xs font-semibold text-slate-200">{googleUser.name}</span>
+                <span className="text-sm font-semibold text-slate-200">{googleUser.name}</span>
                 <button 
                   onClick={() => syncWithGoogleDrive(accessToken)} 
                   disabled={isSyncing}
@@ -829,7 +829,7 @@ export default function App() {
                   }
                 }}
                 disabled={isSyncing}
-                className={`flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full border transition-all ${
+                className={`flex items-center gap-1.5 text-sm font-bold px-4 py-2 rounded-full border transition-all ${
                   syncConflict 
                     ? 'bg-amber-500/20 border-amber-500 text-amber-300 hover:bg-amber-500/30 animate-pulse' 
                     : 'bg-cosmic-800/80 border-cosmic-700 text-slate-300 hover:bg-cosmic-700 hover:text-white'
@@ -843,7 +843,7 @@ export default function App() {
           ) : (
             <button
               onClick={handleGoogleSignIn}
-              className="flex items-center gap-1.5 bg-cosmic-cyan text-cosmic-900 font-bold text-xs px-4 py-2 rounded-full hover:bg-opacity-90 shadow-lg shadow-cosmic-cyan/10 transition-all"
+              className="flex items-center gap-1.5 bg-cosmic-cyan text-cosmic-900 font-bold text-sm px-4 py-2 rounded-full hover:bg-opacity-90 shadow-lg shadow-cosmic-cyan/10 transition-all"
             >
               <Cloud className="w-4 h-4" />
               <span>登入 Google 帳號並同步</span>
@@ -873,11 +873,11 @@ export default function App() {
           <div className={`p-4 border rounded-2xl flex items-start gap-3 transition-all ${brainLoadColor}`}>
             <Info className="w-5 h-5 mt-0.5 flex-shrink-0" />
             <div>
-              <h3 className="text-sm font-bold">目前大腦狀態</h3>
-              <p className="text-xs font-medium mt-1 leading-relaxed">{brainLoadText}</p>
+              <h3 className="text-base font-bold">目前大腦狀態</h3>
+              <p className="text-sm font-medium mt-1 leading-relaxed">{brainLoadText}</p>
               <div className="mt-2.5 flex items-center gap-1">
                 <span className="text-base font-extrabold">{pendingCount}</span>
-                <span className="text-[10px] font-semibold text-slate-400">個念頭待排</span>
+                <span className="text-xs font-semibold text-slate-400">個念頭待排</span>
               </div>
             </div>
           </div>
@@ -906,14 +906,14 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setNewType('REVIEW')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${newType === 'REVIEW' ? 'bg-cosmic-cyan/10 border-cosmic-cyan text-cosmic-cyan' : 'bg-transparent border-cosmic-700 text-slate-400 hover:text-slate-200'}`}
+                  className={`flex-1 py-2 text-sm font-bold rounded-lg border transition-all ${newType === 'REVIEW' ? 'bg-cosmic-cyan/10 border-cosmic-cyan text-cosmic-cyan' : 'bg-transparent border-cosmic-700 text-slate-400 hover:text-slate-200'}`}
                 >
                   深思 💭
                 </button>
                 <button
                   type="button"
                   onClick={() => setNewType('FOCUS')}
-                  className={`flex-1 py-2 text-xs font-bold rounded-lg border transition-all ${newType === 'FOCUS' ? 'bg-cosmic-rose/10 border-cosmic-rose text-cosmic-rose' : 'bg-transparent border-cosmic-700 text-slate-400 hover:text-slate-200'}`}
+                  className={`flex-1 py-2 text-sm font-bold rounded-lg border transition-all ${newType === 'FOCUS' ? 'bg-cosmic-rose/10 border-cosmic-rose text-cosmic-rose' : 'bg-transparent border-cosmic-700 text-slate-400 hover:text-slate-200'}`}
                 >
                   專注 ⚡
                 </button>
@@ -922,7 +922,7 @@ export default function App() {
               {/* Deadline Toggle */}
               <div className="bg-cosmic-700/30 border border-cosmic-700/40 p-3 rounded-xl space-y-3">
                 <label className="flex items-center justify-between cursor-pointer">
-                  <span className="text-xs font-semibold text-slate-300">有截止日期嗎？</span>
+                  <span className="text-sm font-semibold text-slate-300">有截止日期嗎？</span>
                   <input 
                     type="checkbox"
                     checked={hasDeadline}
@@ -935,7 +935,7 @@ export default function App() {
                     type="date"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full bg-cosmic-800 border border-cosmic-600/50 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cosmic-cyan"
+                    className="w-full bg-cosmic-800 border border-cosmic-600/50 rounded-lg px-3 py-1.5 text-sm text-slate-200 focus:outline-none focus:border-cosmic-cyan"
                     required
                   />
                 )}
@@ -954,11 +954,11 @@ export default function App() {
           {/* Pending thoughts list (Mind Area) */}
           <div className="bg-cosmic-800/90 border border-cosmic-700/80 rounded-2xl p-5 shadow-xl flex-1 flex flex-col max-h-[420px] lg:max-h-[600px]">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-extrabold text-white flex items-center gap-2">
+              <h2 className="text-base font-extrabold text-white flex items-center gap-2">
                 <Sliders className="w-4 h-4 text-cosmic-cyan" />
                 腦海中的念頭待排區
               </h2>
-              <span className="text-[10px] font-bold bg-cosmic-700 text-slate-300 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-bold bg-cosmic-700 text-slate-300 px-2 py-0.5 rounded-full">
                 {pendingCount} 個
               </span>
             </div>
@@ -967,8 +967,8 @@ export default function App() {
               {pendingThoughts.length === 0 ? (
                 <div className="h-40 flex flex-col items-center justify-center text-slate-500 text-center p-4">
                   <CheckCircle2 className="w-8 h-8 text-cosmic-cyan/20 mb-2" />
-                  <p className="text-xs font-semibold">恭喜！目前大腦無遺留待辦</p>
-                  <p className="text-[10px] mt-1">安心休息，或是記錄新思緒 ✨</p>
+                  <p className="text-sm font-semibold">恭喜！目前大腦無遺留待辦</p>
+                  <p className="text-xs mt-1">安心休息，或是記錄新思緒 ✨</p>
                 </div>
               ) : (
                 pendingThoughts.map(renderPendingItem)
@@ -982,7 +982,7 @@ export default function App() {
             ========================================== */}
         <section className="lg:col-span-8 bg-cosmic-800/90 border border-cosmic-700/80 rounded-2xl p-6 shadow-xl flex flex-col gap-6">
           <div className="flex items-center justify-between flex-wrap gap-4 border-b border-cosmic-700/50 pb-4">
-            <div className="flex items-start gap-4 flex-wrap">
+            <div className="flex items-center gap-4 flex-wrap">
               <div>
                 <h2 className="text-base font-extrabold text-white flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-cosmic-cyan" />
@@ -1001,7 +1001,7 @@ export default function App() {
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 
-                <span className="text-xs font-bold text-slate-200 min-w-[55px] text-center px-1">
+                <span className="text-sm font-bold text-slate-200 min-w-[55px] text-center px-1">
                   {weekOffset === 0 ? "本週" :
                    weekOffset === 1 ? "下週" :
                    weekOffset === -1 ? "上週" :
@@ -1019,7 +1019,7 @@ export default function App() {
                 {weekOffset !== 0 && (
                   <button
                     onClick={() => setWeekOffset(0)}
-                    className="text-[10px] font-extrabold bg-cosmic-cyan/15 hover:bg-cosmic-cyan/25 text-cosmic-cyan border border-cosmic-cyan/20 px-2 py-0.5 rounded-md transition-all ml-1.5"
+                    className="text-xs font-extrabold bg-cosmic-cyan/15 hover:bg-cosmic-cyan/25 text-cosmic-cyan border border-cosmic-cyan/20 px-2 py-0.5 rounded-md transition-all ml-1.5"
                   >
                     返回本週
                   </button>
@@ -1087,13 +1087,13 @@ export default function App() {
                         </span>
                       </h3>
                       {isToday && (
-                        <span className="bg-cosmic-cyan/20 text-cosmic-cyan border border-cosmic-cyan/20 text-[10px] font-extrabold px-2 py-0.5 rounded-md shadow-sm">
+                        <span className="bg-cosmic-cyan/20 text-cosmic-cyan border border-cosmic-cyan/20 text-xs font-extrabold px-2 py-0.5 rounded-md shadow-sm">
                           今天
                         </span>
                       )}
                       <button
                         onClick={() => setEditingDayIdx(config.dayIndex)}
-                        className={`text-[10px] font-extrabold border px-2.5 py-1 rounded-full transition-all hover:bg-white/5 ${dayTypeInfo.color}`}
+                        className={`text-xs font-extrabold border px-2.5 py-1 rounded-full transition-all hover:bg-white/5 ${dayTypeInfo.color}`}
                       >
                         {dayTypeInfo.name}
                       </button>
@@ -1101,8 +1101,8 @@ export default function App() {
 
                     {/* Progress tracker */}
                     {totalPlacedCount > 0 && (
-                      <div className="flex items-center gap-1 text-xs">
-                        <span className="text-[10px] text-slate-400">已落定</span>
+                      <div className="flex items-center gap-1.5 text-sm">
+                        <span className="text-xs text-slate-400">已落定</span>
                         <span className={`font-bold ${completedCount === totalPlacedCount ? 'text-cosmic-cyan' : 'text-white'}`}>
                           {completedCount}/{totalPlacedCount}
                         </span>
@@ -1126,35 +1126,35 @@ export default function App() {
                           className={`border rounded-xl p-3 flex flex-col gap-2 min-h-[105px] transition-all ${isLocked ? 'bg-slate-900/35 border-slate-800 text-slate-500' : 'bg-cosmic-800/40 border-cosmic-700/40'}`}
                         >
                           <div className="border-b border-cosmic-700/40 pb-1.5 mb-1 flex items-center justify-between flex-wrap gap-1">
-                            <span className="text-[10.5px] font-bold text-slate-300 truncate">
+                            <span className="text-sm font-bold text-slate-300 truncate">
                               {gap.name}
                             </span>
-                            <span className="text-[9px] text-slate-400 font-mono">
+                            <span className="text-xs text-slate-400 font-mono">
                               {gap.timeRange}
                             </span>
                           </div>
 
                           {/* Semantic tag */}
                           <div className="flex justify-start">
-                            <span className={`text-[8.5px] px-1.5 py-0.5 rounded font-extrabold border ${semantic.color}`}>
+                            <span className={`text-xs px-1.5 py-0.5 rounded font-extrabold border ${semantic.color}`}>
                               {semantic.label}
                             </span>
                           </div>
 
                           <div className="flex-1 space-y-2 mt-1">
                             {isLocked ? (
-                              <div className="h-full flex items-center justify-center py-2 text-[9px] text-slate-500 italic">
+                              <div className="h-full flex items-center justify-center py-2 text-xs text-slate-500 italic">
                                 🔒 鎖定
                               </div>
                             ) : slotThoughts.length === 0 ? (
-                              <span className="text-[10px] text-slate-600 font-medium italic block py-2 text-center">
+                              <span className="text-xs text-slate-600 font-medium italic block py-2 text-center">
                                 空白時間
                               </span>
                             ) : (
                               slotThoughts.map(t => (
                                 <div 
                                   key={t.id} 
-                                  className={`p-2 rounded-lg border text-xs flex items-start gap-1.5 transition-all group ${t.status === 'COMPLETED' ? 'bg-cosmic-cyan/5 border-cosmic-cyan/20 opacity-60' : 'bg-cosmic-700/40 border-cosmic-600/40'}`}
+                                  className={`p-2 rounded-lg border text-sm flex items-start gap-1.5 transition-all group ${t.status === 'COMPLETED' ? 'bg-cosmic-cyan/5 border-cosmic-cyan/20 opacity-60' : 'bg-cosmic-700/40 border-cosmic-600/40'}`}
                                 >
                                   {/* Completion checkbox */}
                                   <button 
@@ -1173,11 +1173,11 @@ export default function App() {
                                       {t.title}
                                     </p>
                                     <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                                      <span className={`text-[8.5px] px-1 rounded font-bold ${t.type === 'FOCUS' ? 'bg-cosmic-rose/10 text-cosmic-rose' : 'bg-cosmic-cyan/10 text-cosmic-cyan'}`}>
+                                      <span className={`text-xs px-1.5 py-0.5 rounded font-bold ${t.type === 'FOCUS' ? 'bg-cosmic-rose/10 text-cosmic-rose' : 'bg-cosmic-cyan/10 text-cosmic-cyan'}`}>
                                         {t.type === 'FOCUS' ? '專注' : '深思'}
                                       </span>
                                       {t.isDeadline && t.dueDate && (
-                                        <span className="text-[8.5px] text-cosmic-gold bg-cosmic-gold/5 px-1 rounded border border-cosmic-gold/10">
+                                        <span className="text-xs text-cosmic-gold bg-cosmic-gold/5 px-1.5 py-0.5 rounded border border-cosmic-gold/10">
                                           {t.dueDate}
                                         </span>
                                       )}
@@ -1218,23 +1218,23 @@ export default function App() {
               設定 Google Client ID
             </h3>
             
-            <p className="text-xs text-slate-300 leading-relaxed mb-4">
+            <p className="text-sm text-slate-300 leading-relaxed mb-4">
               為了能在您個人專屬的安全 Google Drive 中存取同步檔案，本網頁應用程式需要使用您在 Google Cloud Console 註冊的用戶端識別碼（Client ID）。
             </p>
 
             <div className="space-y-4 mb-5">
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-2">OAuth 2.0 Web Client ID 🔑</label>
+                <label className="block text-sm font-bold text-slate-300 mb-2">OAuth 2.0 Web Client ID 🔑</label>
                 <input 
                   type="text" 
                   value={clientId}
                   onChange={(e) => setClientId(e.target.value.trim())}
                   placeholder="輸入 718xxx-xxx.apps.googleusercontent.com"
-                  className="w-full bg-cosmic-700/60 border border-cosmic-600/50 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cosmic-cyan"
+                  className="w-full bg-cosmic-700/60 border border-cosmic-600/50 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cosmic-cyan"
                 />
               </div>
 
-              <div className="bg-cosmic-900/60 p-3.5 rounded-xl text-[11px] text-slate-400 space-y-2">
+              <div className="bg-cosmic-900/60 p-3.5 rounded-xl text-xs text-slate-400 space-y-2">
                 <p className="font-bold text-slate-300">如何取得 Client ID？</p>
                 <ol className="list-decimal list-inside space-y-1">
                   <li>進入 <a href="https://console.cloud.google.com/" target="_blank" className="text-cosmic-cyan underline">Google Cloud Console</a> 並建立/選擇專案。</li>
@@ -1249,7 +1249,7 @@ export default function App() {
             <div className="flex justify-end gap-3 border-t border-cosmic-700/60 pt-4">
               <button 
                 onClick={() => setShowSettings(false)}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-cosmic-cyan text-cosmic-900 hover:opacity-95"
+                className="px-4 py-2 rounded-xl text-sm font-bold bg-cosmic-cyan text-cosmic-900 hover:opacity-95"
               >
                 儲存並關閉
               </button>
@@ -1267,7 +1267,7 @@ export default function App() {
             <h3 className="text-base font-bold text-white mb-2">
               調整 {DAY_NAMES[editingDayIdx]} ({getShortDateStringForIndex(editingDayIdx, weekOffset)}) 日型配置
             </h3>
-            <p className="text-xs text-slate-400 mb-4">這會變更您在該日大腦可排入的時間縫隙配置：</p>
+            <p className="text-sm text-slate-400 mb-4">這會變更您在該日大腦可排入的時間縫隙配置：</p>
 
             <div className="space-y-2.5 mb-5">
               {Object.entries(DAY_TYPES).map(([typeKey, info]) => {
@@ -1289,7 +1289,7 @@ export default function App() {
             <div className="flex justify-end pt-2">
               <button 
                 onClick={() => setEditingDayIdx(null)}
-                className="text-xs text-slate-400 hover:text-slate-200 font-bold px-3 py-1.5"
+                className="text-sm text-slate-400 hover:text-slate-200 font-bold px-3 py-1.5"
               >
                 取消
               </button>
@@ -1305,11 +1305,13 @@ export default function App() {
         <div className="fixed bottom-6 right-6 z-50 max-w-sm bg-cosmic-800 border border-cosmic-rose/40 rounded-2xl p-4.5 shadow-2xl flex items-start gap-3.5 animate-slide-in">
           <AlertTriangle className="w-5 h-5 text-cosmic-rose flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h4 className="text-xs font-bold text-cosmic-rose">落念警示！🧠</h4>
-            <p className="text-[11px] text-slate-200 mt-1 leading-relaxed">{warningMessage}</p>
+            <h4 className="text-sm font-bold text-cosmic-rose">落念警示！🧠</h4>
+            <p className="text-xs text-slate-200 mt-1 leading-relaxed">{warningMessage}</p>
             <button 
-              onClick={() => setWarningMessage('')}
-              className="mt-3 bg-cosmic-rose/10 hover:bg-cosmic-rose/20 text-cosmic-rose font-bold text-[10px] px-3 py-1.5 rounded-lg transition-colors"
+              onClick={() => {
+                setWarningMessage('');
+              }}
+              className="mt-3 bg-cosmic-rose/10 hover:bg-cosmic-rose/20 text-cosmic-rose font-bold text-xs px-3 py-1.5 rounded-lg transition-colors"
             >
               我知道了
             </button>
@@ -1327,13 +1329,13 @@ export default function App() {
               <AlertTriangle className="w-5 h-5" />
               排程警示
             </h3>
-            <p className="text-xs text-slate-200 leading-relaxed mb-4">
+            <p className="text-sm text-slate-200 leading-relaxed mb-4">
               {pendingPlacement.message}
             </p>
             <div className="flex justify-end gap-3 border-t border-cosmic-700/60 pt-4">
               <button
                 onClick={() => setPendingPlacement(null)}
-                className="px-3.5 py-2 rounded-xl text-xs font-bold bg-cosmic-700 hover:bg-cosmic-600 text-slate-300"
+                className="px-3.5 py-2 rounded-xl text-sm font-bold bg-cosmic-700 hover:bg-cosmic-600 text-slate-300"
               >
                 換一格
               </button>
@@ -1342,7 +1344,7 @@ export default function App() {
                   placeThoughtDirect(pendingPlacement.thoughtId, pendingPlacement.dayIndex, pendingPlacement.slotId);
                   setPendingPlacement(null);
                 }}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-cosmic-rose text-white hover:opacity-95"
+                className="px-4 py-2 rounded-xl text-sm font-bold bg-cosmic-rose text-white hover:opacity-95"
               >
                 強行安放
               </button>
@@ -1352,7 +1354,7 @@ export default function App() {
       )}
 
       {/* Footer Branding */}
-      <footer className="mt-12 border-t border-cosmic-800/80 py-6 text-center text-slate-500 text-[10.5px] font-medium">
+      <footer className="mt-12 border-t border-cosmic-800/80 py-6 text-center text-slate-500 text-xs font-medium">
         <p>© {new Date().getFullYear()} 落念 Luodi. 釋放思緒，減輕負荷，安然落定。</p>
       </footer>
     </div>
