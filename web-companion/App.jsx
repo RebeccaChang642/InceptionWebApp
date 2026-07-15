@@ -18,7 +18,9 @@ import {
   Info,
   Sliders,
   Sparkles,
-  Download
+  Download,
+  PanelLeftClose,
+  PanelLeftOpen
 } from 'lucide-react';
 
 // ==========================================
@@ -134,6 +136,10 @@ export default function App() {
   const [syncConflict, setSyncConflict] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [weekOffset, setWeekOffset] = useState(0);
+  const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(() => {
+    const local = localStorage.getItem('luodi_left_panel_open');
+    return local !== null ? JSON.parse(local) : true;
+  });
 
   // --- Core Application State ---
   const [thoughts, setThoughts] = useState(() => {
@@ -175,6 +181,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('luodi_day_configs', JSON.stringify(dayConfigs));
   }, [dayConfigs]);
+
+  useEffect(() => {
+    localStorage.setItem('luodi_left_panel_open', JSON.stringify(isLeftPanelOpen));
+  }, [isLeftPanelOpen]);
 
   // --- Save Google Credentials ---
   useEffect(() => {
@@ -868,7 +878,8 @@ export default function App() {
         {/* ==========================================
             LEFT PANEL: INPUTS & PENDING LIST
             ========================================== */}
-        <section className="lg:col-span-4 flex flex-col gap-5">
+        {isLeftPanelOpen && (
+          <section className="lg:col-span-4 flex flex-col gap-5">
           {/* Brain Load Badge */}
           <div className={`p-4 border rounded-2xl flex items-start gap-3 transition-all ${brainLoadColor}`}>
             <Info className="w-5 h-5 mt-0.5 flex-shrink-0" />
@@ -976,11 +987,12 @@ export default function App() {
             </div>
           </div>
         </section>
+        )}
 
         {/* ==========================================
             RIGHT PANEL: WEEKLY TIMELINE PLANNER
             ========================================== */}
-        <section className="lg:col-span-8 bg-cosmic-800/90 border border-cosmic-700/80 rounded-2xl p-6 shadow-xl flex flex-col gap-6">
+        <section className={`${isLeftPanelOpen ? 'lg:col-span-8' : 'lg:col-span-12'} bg-cosmic-800/90 border border-cosmic-700/80 rounded-2xl p-6 shadow-xl flex flex-col gap-6 transition-all duration-300`}>
           <div className="flex items-center justify-between flex-wrap gap-4 border-b border-cosmic-700/50 pb-4">
             <div className="flex items-center gap-4 flex-wrap">
               <div>
@@ -990,6 +1002,25 @@ export default function App() {
                 </h2>
                 <p className="text-xs text-slate-400 mt-0.5">點擊各日標籤可調整「日型」與大腦負荷限額 ⚡</p>
               </div>
+
+              {/* Panel Toggle Button */}
+              <button
+                onClick={() => setIsLeftPanelOpen(!isLeftPanelOpen)}
+                className="hidden lg:flex items-center gap-1.5 bg-cosmic-700/60 hover:bg-cosmic-600/80 border border-cosmic-600/50 hover:border-cosmic-500 px-3 py-1.5 rounded-xl text-xs font-extrabold text-slate-300 hover:text-white transition-all shadow-sm cursor-pointer"
+                title={isLeftPanelOpen ? "收合左側面板" : "展開左側面板"}
+              >
+                {isLeftPanelOpen ? (
+                  <>
+                    <PanelLeftClose className="w-4 h-4 text-cosmic-rose" />
+                    <span>收合左側 (大腦狀態/新念頭)</span>
+                  </>
+                ) : (
+                  <>
+                    <PanelLeftOpen className="w-4 h-4 text-cosmic-cyan animate-pulse" />
+                    <span>展開左側 (大腦狀態/新念頭)</span>
+                  </>
+                )}
+              </button>
 
               {/* Week navigation control */}
               <div className="flex items-center gap-1.5 bg-cosmic-700/50 border border-cosmic-700/70 px-2.5 py-1 rounded-full shadow-inner">
